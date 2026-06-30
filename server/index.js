@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const resumeRoutes = require('./routes/resume');
+const analyzeRoutes = require('./routes/analyze');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/resume', resumeRoutes);
+app.use('/api/analyze', analyzeRoutes);
 
 app.get('/', (req, res) => {
   res.send('HireReady server is running!');
