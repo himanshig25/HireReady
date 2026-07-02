@@ -1,12 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const Groq = require('groq-sdk');
+const Analysis = require('../models/Analysis');
+const jwt = require('jsonwebtoken');
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-router.post('/analyze', async (req, res) => {
+const getUser = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+router.post('/analyze', getUser, async (req, res) => {
   try {
     const { resumeText, jobDescription } = req.body;
 
@@ -46,11 +60,30 @@ Respond ONLY in valid JSON format like this, nothing else:
 
     const result = JSON.parse(response.choices[0].message.content);
 
+    const analysis = new Analysis({
+      userId: req.userId,
+      jobDescription,
+      atsScore: result.atsScore,
+      missingKeywords: result.missingKeywords,
+      matchingKeywords: result.matchingKeywords,
+      suggestions: result.suggestions
+    });
+    await analysis.save();
+
     res.json(result);
 
   } catch (error) {
     console.log('ERROR:', error.message);
     res.status(500).json({ message: 'Analysis failed', error: error.message });
+  }
+});
+
+router.get('/history', getUser, async (req, res) => {
+  try {
+    const analyses = await Analysis.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json(analyses);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch history' });
   }
 });
 

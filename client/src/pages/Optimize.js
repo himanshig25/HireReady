@@ -24,14 +24,18 @@ function Optimize() {
     }
     setUploading(false);
   };
-
   const handleAnalyze = async (e) => {
     e.preventDefault();
     setAnalyzing(true);
     try {
+      const token = localStorage.getItem('token');
       const res = await axios.post('http://localhost:5000/api/analyze/analyze', {
         resumeText,
         jobDescription
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       setResult(res.data);
     } catch (error) {
@@ -39,7 +43,6 @@ function Optimize() {
     }
     setAnalyzing(false);
   };
-
   return (
     <>
       <Navbar />
