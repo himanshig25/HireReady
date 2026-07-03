@@ -21,6 +21,9 @@ function Navbar() {
         <a href="/optimize" className="text-sm text-gray-600 hover:text-blue-600">
           Optimize
         </a>
+        <a href="/history" className="text-sm text-gray-600 hover:text-blue-600">
+          History
+        </a>
         <span className="text-sm text-gray-400">|</span>
         <span className="text-sm text-gray-700">{user ? user.name : ''}</span>
         <button
