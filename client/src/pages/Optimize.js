@@ -15,8 +15,7 @@ function Optimize() {
     setUploading(true);
     const formData = new FormData();
     formData.append('resume', file);
-    try {
-      const res = await axios.post('http://localhost:5000/api/resume/upload', formData);
+    try {const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/resume/upload`, formData);
       setResumeText(res.data.text);
       alert('Resume uploaded and text extracted!');
     } catch (error) {
@@ -29,7 +28,7 @@ function Optimize() {
     setAnalyzing(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/analyze/analyze', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/analyze/analyze`, {
         resumeText,
         jobDescription
       }, {
