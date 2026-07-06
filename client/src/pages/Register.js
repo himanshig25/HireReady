@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         name, email, password
       });
       const loginRes = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
@@ -17,7 +19,7 @@ function Register() {
       });
       localStorage.setItem('token', loginRes.data.token);
       localStorage.setItem('user', JSON.stringify(loginRes.data.user));
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } catch (error) {
       alert(error.response.data.message);
     }
