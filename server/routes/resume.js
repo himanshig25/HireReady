@@ -4,17 +4,8 @@ const multer = require('multer');
 const { PdfReader } = require('pdfreader');
 const mammoth = require('mammoth');
 const path = require('path');
-const fs = require('fs');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 router.post('/upload', upload.single('resume'), async (req, res) => {
@@ -25,22 +16,20 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const filePath = req.file.path;
     const fileExt = path.extname(req.file.originalname).toLowerCase();
-
     let extractedText = '';
 
     if (fileExt === '.pdf') {
       extractedText = await new Promise((resolve, reject) => {
         let text = '';
-        new PdfReader().parseFileItems(filePath, (err, item) => {
+        new PdfReader().parseBuffer(req.file.buffer, (err, item) => {
           if (err) reject(err);
           else if (!item) resolve(text);
           else if (item.text) text += item.text + ' ';
         });
       });
     } else if (fileExt === '.docx') {
-      const result = await mammoth.extractRawText({ path: filePath });
+      const result = await mammoth.extractRawText({ buffer: req.file.buffer });
       extractedText = result.value;
     }
 
