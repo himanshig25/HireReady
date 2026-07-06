@@ -9,11 +9,15 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`,
-        {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         name, email, password
       });
-      alert(res.data.message);
+      const loginRes = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        email, password
+      });
+      localStorage.setItem('token', loginRes.data.token);
+      localStorage.setItem('user', JSON.stringify(loginRes.data.user));
+      window.location.href = '/dashboard';
     } catch (error) {
       alert(error.response.data.message);
     }
