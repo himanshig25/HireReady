@@ -52,13 +52,17 @@ Respond ONLY in valid JSON format like this, nothing else:
 }
 `;
 
-    const response = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+
+        const response = await groq.chat.completions.create({
+      model: 'openai/gpt-oss-120b',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1000
+      max_tokens: 2000
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const text = response.choices[0].message.content
+      .replace(/```json|```/g, '')
+      .trim();
+    const result = JSON.parse(text);
 
     const analysis = new Analysis({
       userId: req.userId,
